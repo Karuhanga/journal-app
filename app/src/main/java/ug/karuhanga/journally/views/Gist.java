@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -13,6 +14,10 @@ import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Background;
@@ -74,6 +79,10 @@ public class Gist extends AppCompatActivity implements GistControllerDash, Entry
         return true;
     }
 
+    public static void launch(Context context) {
+        context.startActivity(new Intent(context, Gist_.class));
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -84,9 +93,33 @@ public class Gist extends AppCompatActivity implements GistControllerDash, Entry
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
+        } else if (id == R.id.action_logout) {
+            logoutUser();
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void logoutUser() {
+
+        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which) {
+                    case DialogInterface.BUTTON_POSITIVE:
+                        confirmLogout();
+                        break;
+
+                    case DialogInterface.BUTTON_NEGATIVE:
+                        break;
+                }
+            }
+        };
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Are you sure?").setMessage("You will not be able to use Journal.ly until you login again.").setPositiveButton("Yes", dialogClickListener)
+                .setNegativeButton("No", dialogClickListener).show();
+
     }
 
     @Click(R.id.fab_gist)
@@ -176,6 +209,16 @@ public class Gist extends AppCompatActivity implements GistControllerDash, Entry
     @Background
     void completeDelete(Entry entry, int position) {
         adapter.completeDelete(entry, position);
+    }
+
+    private void confirmLogout() {
+        AuthUI.getInstance()
+                .signOut(this)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    public void onComplete(@NonNull Task<Void> task) {
+                        finish();
+                    }
+                });
     }
 
     public interface GistExternalInterface {

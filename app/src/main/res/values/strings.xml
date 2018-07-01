@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">Journal.ly</string>
     <string name="action_settings">Settings</string>
+    <string name="logout">Logout</string>
+    <string name="journally">Journal.ly</string>
+    <string name="catch_phrase">Imagine. Muse. Create.</string>
 </resources>
