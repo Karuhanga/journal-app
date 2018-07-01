@@ -1,8 +1,8 @@
 apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
 
 def AndroidAnnotationsVersion = '4.4.0'
 def lifecycle_version = "1.1.1"
+
 
 
 android {
@@ -49,7 +49,14 @@ dependencies {
 
     //Fancy text editor
     implementation 'com.github.irshulx:laser-native-editor:2.1.0'
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+
+    def supportLibVersion="26.1.0"
+    // Required
+    implementation "com.android.support:appcompat-v7:$supportLibVersion"
+    implementation "com.android.support:recyclerview-v7:$supportLibVersion"
+
+    // RecyclerViewHelper
+    implementation "com.github.nisrulz:recyclerviewhelper:27.1.1"
 
 }
 repositories {

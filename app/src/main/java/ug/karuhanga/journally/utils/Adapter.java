@@ -8,15 +8,21 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import github.nisrulz.recyclerviewhelper.RVHAdapter;
+import github.nisrulz.recyclerviewhelper.RVHViewHolder;
 import ug.karuhanga.journally.R;
+import ug.karuhanga.journally.models.Database;
 import ug.karuhanga.journally.models.Entry;
 
-public class Adapter extends RecyclerView.Adapter<Adapter.EntryViewHolder> {
+public class Adapter extends RecyclerView.Adapter<Adapter.EntryViewHolder> implements RVHAdapter {
 
     private List<Entry> entries;
-    private OnEntryClickListener mListener;
+    private EntryInteractionListener mListener;
+    private int SWIPE_RIGHT = 32;
+    private int SWIPE_LEFT = 16;
+    private List<Entry> data;
 
-    public Adapter(List<Entry> entries, OnEntryClickListener mListener) {
+    public Adapter(List<Entry> entries, EntryInteractionListener mListener) {
         this.entries = entries;
         this.mListener = mListener;
     }
@@ -45,7 +51,38 @@ public class Adapter extends RecyclerView.Adapter<Adapter.EntryViewHolder> {
         return this.entries.size();
     }
 
-    public class EntryViewHolder extends RecyclerView.ViewHolder {
+    @Override
+    public void onItemDismiss(int position, int direction) {
+        if (direction == SWIPE_RIGHT) {
+            mListener.areYouSure(getItem(position), position);
+        } else {
+            refreshView(position);
+//            mListener.share(getItem(position));
+        }
+    }
+
+    @Override
+    public boolean onItemMove(int fromPosition, int toPosition) {
+
+        // TODO
+        return false;
+    }
+
+    public void completeDelete(Entry entry, int position) {
+        this.entries.remove(position);
+        Database.getDb(mListener.requestContext()).getEntryDao().deleteEntry(entry);
+        mListener.mNotifyItemRemoved(position);
+    }
+
+    public void refreshView(int position) {
+        notifyItemChanged(position);
+    }
+
+    public void setData(List<Entry> data) {
+        this.data = data;
+    }
+
+    public class EntryViewHolder extends RecyclerView.ViewHolder implements RVHViewHolder {
         View entryView;
         TextView title;
 
@@ -59,13 +96,23 @@ public class Adapter extends RecyclerView.Adapter<Adapter.EntryViewHolder> {
             this.title.setText(entry.getTitle());
         }
 
-        public void setViewClickListener(final OnEntryClickListener listener, final Entry entry) {
+        public void setViewClickListener(final EntryInteractionListener listener, final Entry entry) {
             this.entryView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     listener.onEntryClicked(entry.getPk());
                 }
             });
+        }
+
+        @Override
+        public void onItemClear() {
+            //  TODO
+        }
+
+        @Override
+        public void onItemSelected(int actionstate) {
+            // TODO
         }
     }
 }

@@ -56,7 +56,16 @@ public class Entry {
         return this;
     }
 
+    public String toString() {
+        return this.title;
+    }
+
     public void save(Context context) {
         Database.getDb(context).getEntryDao().insertEntry(this);
+    }
+
+    public String sendify() {
+        // TODO
+        return toString();
     }
 }
